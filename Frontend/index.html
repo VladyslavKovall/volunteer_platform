@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <title>Події</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+
+   <!-- 🔁 ТАБИ -->
+   <div>
+    <span class="tab-btn active" data-tab="register">Реєстрація</span>
+    <span class="tab-btn" data-tab="login">Вхід</span>
+  </div>
+
+  <!-- ✅ Форма реєстрації -->
+  <div id="register" class="tab-content active">
+    <h2>Реєстрація</h2>
+    <form id="registerForm">
+      <input type="text" name="username" placeholder="Ім’я користувача" required /><br />
+      <input type="email" name="email" placeholder="Email" required /><br />
+      <input type="password" name="password" placeholder="Пароль" required /><br />
+      <button type="submit">Зареєструватись</button>
+    </form>
+    <p id="registerMessage"></p>
+  </div>
+
+  <!-- ✅ Форма входу -->
+  <div id="login" class="tab-content">
+    <h2>Вхід</h2>
+    <form id="loginForm">
+      <input type="email" name="email" placeholder="Email" required /><br />
+      <input type="password" name="password" placeholder="Пароль" required /><br />
+      <button type="submit">Увійти</button>
+    </form>
+    <p id="loginMessage"></p>
+  </div>
+
+  <!-- ✅ Основний контент -->
+  <section id="mainContent" style="display: none;">
+    <h1>Список заходів</h1>
+    <ul id="eventsList"></ul>
+  <button id="showEventFormBtn">➕ Створити захід</button>
+
+
+  <form id="eventForm" style="display: none; margin-top: 1em;">
+    <input type="hidden" name="eventId" />
+    <input type="text" name="title" placeholder="Назва події" required /><br />
+    <input type="datetime-local" name="date" required /><br />
+    <input type="text" name="location" placeholder="Місце проведення" required /><br />
+    <textarea name="description" placeholder="Опис події" required></textarea><br />
+    <button type="submit">💾 Зберегти</button>
+    <button type="button" id="cancelEditBtn">❌ Скасувати</button>
+  </form>
+
+  </section>
+
+  <script src="logic.js"></script>
+</body>
+</html>
