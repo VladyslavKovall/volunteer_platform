@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const db = require('./config/db'); // Підключення до бази
+const db = require('./config/db'); 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User'); 
@@ -25,12 +25,12 @@ app.use(cors({
 app.use(express.json());
 
 
-// Головний маршрут
+
 app.get('/', (req, res) => {
     res.send('Сервер працює!');
 });
 
-// ✅ РЕЄСТРАЦІЯ
+
 app.post('/register', async (req, res) => {
     const { username, email, password } = req.body;
 
@@ -39,7 +39,6 @@ app.post('/register', async (req, res) => {
     }
 
     try {
-        // Перевірка, чи вже існує email
         User.findUserByEmail(email, async (err, results) => {
             if (err) {
                 console.error('DB error:', err);
@@ -62,7 +61,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
-// ✅ ЛОГІН
+
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
 
@@ -87,13 +86,15 @@ app.post('/login', (req, res) => {
             return res.status(401).json({ message: 'Невірний пароль' });
         }
     
-        const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: '2h' });
+        const token = jwt.sign({ id: user.id }, SECRET_KEY, { expiresIn: '1h' });
+        console.log(token);
         res.json({ message: 'Вхід успішний!', token });
     });
     
 });
 
-// ✅ ЗАХИЩЕНИЙ маршрут (приклад)
+
+
 app.get('/profile', authMiddleware(SECRET_KEY), (req, res) => {
     res.json({ message: `Привіт, користувачу з ID: ${req.user.id}` });
 });
@@ -104,39 +105,52 @@ app.get('/events', (req, res) => {
     });
 });
 
-// Створити захід
-app.post('/events', authMiddleware(SECRET_KEY), (req, res) => {
 
+  
+// створення заходу
+app.post('/events', authMiddleware(SECRET_KEY), (req, res) => {
     const { title, description, date, location } = req.body;
+    const userId = req.user.id; 
     if (!title || !description || !date || !location) {
         return res.status(400).json({ error: 'Усі поля обов’язкові' });
     }
-    Event.createEvent(title, description, date, location, (err, result) => {
+
+    Event.createEvent(userId, title, description, date, location, (err, result) => {
         if (err) return res.status(500).json({ error: 'Помилка створення заходу' });
         res.status(201).json({ message: 'Захід створено' });
     });
 });
 
-// Оновити захід
+
+// оновлення заходу
 app.put('/events/:id', authMiddleware(SECRET_KEY), (req, res) => {
     const { title, description, date, location } = req.body;
     const { id } = req.params;
-    Event.updateEvent(id, title, description, date, location, (err, result) => {
-        if (err) return res.status(500).json({ error: 'Помилка оновлення' });
-        res.json({ message: 'Захід оновлено' });
+    const userId = req.user.id;
+
+    Event.findEventById(id, (err, event) => {
+        if (err || !event) return res.status(404).json({ error: 'Подія не знайдена' });
+        if (event.user_id !== userId) return res.status(403).json({ error: 'Немає доступу' });
+
+        Event.updateEvent(id, userId, title, description, date, location, (err, result) => {
+            if (err) return res.status(500).json({ error: 'Помилка оновлення' });
+            res.json({ message: 'Захід оновлено' });
+        });
     });
 });
 
-// Видалити захід
+
+// видалення заходу
 app.delete('/events/:id', authMiddleware(SECRET_KEY), (req, res) => {
     const { id } = req.params;
-    Event.deleteEvent(id, (err, result) => {
+    const userId = req.user.id;
+    Event.deleteEvent(id, userId, (err, result) => {
         if (err) return res.status(500).json({ error: 'Помилка видалення' });
         res.json({ message: 'Захід видалено' });
     });
 });
 
-// ▶️ Запуск сервера
+// запуск сервера
 app.listen(PORT, () => {
-    console.log(`✅ Сервер працює на порту ${PORT}`);
+    console.log(`Сервер працює на порту ${PORT}`);
 });

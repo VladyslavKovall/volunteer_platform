@@ -1,4 +1,3 @@
-// 🔁 Перемикання табів
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -9,7 +8,14 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// ✅ РЕЄСТРАЦІЯ
+function parseJwt(token) {
+  const base64Payload = token.split('.')[1];
+  const payload = atob(base64Payload);
+  return JSON.parse(payload);
+}
+
+
+// реєстрація
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -31,7 +37,6 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
     document.getElementById('registerMessage').textContent = result.message;
 
     if (res.ok) {
-      // Автовхід після реєстрації
       await loginUser(data.email, data.password);
     }
 
@@ -40,7 +45,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   }
 });
 
-// ✅ ВХІД
+// вхід
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -51,7 +56,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   await loginUser(email, password);
 });
 
-// 🔐 Авторизація
+// авторизація
 async function loginUser(email, password) {
   try {
     const res = await fetch('http://localhost:3000/login', {
@@ -63,7 +68,7 @@ async function loginUser(email, password) {
     const result = await res.json();
 
     if (res.ok) {
-      localStorage.setItem('token', result.token); // Зберігаємо токен
+      localStorage.setItem('token', result.token); 
       showMainPage();
     } else {
       document.getElementById('loginMessage').textContent = result.message || 'Помилка входу';
@@ -73,7 +78,7 @@ async function loginUser(email, password) {
   }
 }
 
-// 📦 Завантажити події
+// загрузка подій
 async function loadEvents() {
   try {
     const res = await fetch('http://localhost:3000/events');
@@ -81,13 +86,9 @@ async function loadEvents() {
 
     const list = document.getElementById('eventsList');
     list.innerHTML = '';
-
-    const eventForm = document.getElementById('eventForm'); // переконаємось, що є доступ
-
+    const eventForm = document.getElementById('eventForm'); 
     events.forEach(event => {
       const li = document.createElement('li');
-
-      // Форматуємо дату
       const date = new Date(event.date);
       const formattedDate = date.toLocaleString('uk-UA', {
         day: 'numeric',
@@ -105,7 +106,6 @@ async function loadEvents() {
         <hr />
       `;
 
-      // Кнопка редагування
       const editBtn = document.createElement('button');
       editBtn.textContent = '✏️ Редагувати';
       editBtn.addEventListener('click', () => {
@@ -117,7 +117,7 @@ async function loadEvents() {
         eventForm.elements.description.value = event.description;
       });
 
-      // Кнопка видалення
+
       const deleteBtn = document.createElement('button');
       deleteBtn.textContent = '🗑️ Видалити';
       deleteBtn.addEventListener('click', async () => {
@@ -147,9 +147,6 @@ async function loadEvents() {
   }
 }
 
-
-
-// 📄 Показати головну сторінку
 function showMainPage() {
   document.getElementById('register').style.display = 'none';
   document.getElementById('login').style.display = 'none';
@@ -160,36 +157,32 @@ function showMainPage() {
   const eventForm = document.getElementById('eventForm');
   const cancelEditBtn = document.getElementById('cancelEditBtn');
 
-// 🔘 Показати форму створення
+
   showEventFormBtn.addEventListener('click', () => {
     eventForm.reset();
     eventForm.elements.eventId.value = '';
     eventForm.style.display = 'block';
   });
 
-// ❌ Скасувати редагування
+
   cancelEditBtn.addEventListener('click', () => {
     eventForm.style.display = 'none';
     eventForm.reset();
   });
 
-// 💾 Надіслати форму
 eventForm.addEventListener('submit', async (e) => {
   e.preventDefault();
-
   const formData = new FormData(eventForm);
   const eventId = formData.get('eventId');
   console.log(eventId)
   const method = eventId ? 'PUT' : 'POST';
   const url = eventId ? `http://localhost:3000/events/${eventId}` : 'http://localhost:3000/events';
-
   const data = {
     title: formData.get('title'),
     date: formData.get('date'),
     location: formData.get('location'),
     description: formData.get('description')
   };
-
   try {
     await fetch(url, {
       method,
@@ -208,6 +201,5 @@ eventForm.addEventListener('submit', async (e) => {
     alert('Помилка при збереженні події');
   }
 });
-
   loadEvents();
 }
