@@ -10,18 +10,13 @@ const cors = require('cors');
 
 const app = express();
 const PORT =  3000;
-
 const SECRET_KEY = process.env.SECRET_KEY;
 
 console.log(SECRET_KEY) 
-
-
-
 app.use(cors({
     origin: true, 
     credentials: true
   }));
-  
 app.use(express.json());
 
 
@@ -92,12 +87,14 @@ app.post('/login', (req, res) => {
     });
     
 });
-
-
-
-app.get('/profile', authMiddleware(SECRET_KEY), (req, res) => {
-    res.json({ message: `Привіт, користувачу з ID: ${req.user.id}` });
+app.get('/events/:id/volunteers', (req, res) => {
+    const eventId = req.params.id;
+    Event.getRegistrationsForEvent(eventId, (err, volunteers) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(volunteers);
+    });
 });
+
 app.get('/events', (req, res) => {
     Event.getAllEvents((err, results) => {
         if (err) return res.status(500).json({ error: 'Помилка сервера' });
@@ -147,6 +144,25 @@ app.delete('/events/:id', authMiddleware(SECRET_KEY), (req, res) => {
     Event.deleteEvent(id, userId, (err, result) => {
         if (err) return res.status(500).json({ error: 'Помилка видалення' });
         res.json({ message: 'Захід видалено' });
+    });
+});
+
+app.post('/events/:id/register', authMiddleware(SECRET_KEY), (req, res) => {
+    console.log('📥 POST /events/:id/register запущено');
+    const eventId = req.params.id;
+    const userId = req.user.id;
+
+    const sql = 'INSERT INTO registrations (user_id, event_id) VALUES (?, ?)';
+
+    db.query(sql, [userId, eventId], (err, result) => {
+        if (err) {
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.status(400).json({ message: 'Ви вже приєдналися до цієї події' });
+            }
+            console.error(err);
+            return res.status(500).json({ message: 'Помилка сервера' });
+        }
+        res.status(201).json({ message: 'Успішно приєднано до події' });
     });
 });
 

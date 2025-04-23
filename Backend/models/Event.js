@@ -27,3 +27,13 @@ exports.findEventById = (id, callback) => {
         callback(null, results[0]); 
     });
 };
+exports.getRegistrationsForEvent = (eventId, callback) => {
+    const sql = `
+    SELECT users.username
+    FROM registrations
+    LEFT JOIN users ON registrations.user_id = users.id
+    WHERE registrations.event_id = ?
+`;
+    db.query(sql, [eventId], callback);
+};
+

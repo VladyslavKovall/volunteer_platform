@@ -86,7 +86,8 @@ async function loadEvents() {
 
     const list = document.getElementById('eventsList');
     list.innerHTML = '';
-    const eventForm = document.getElementById('eventForm'); 
+    const eventForm = document.getElementById('eventForm');
+
     events.forEach(event => {
       const li = document.createElement('li');
       const date = new Date(event.date);
@@ -117,7 +118,6 @@ async function loadEvents() {
         eventForm.elements.description.value = event.description;
       });
 
-
       const deleteBtn = document.createElement('button');
       deleteBtn.textContent = '🗑️ Видалити';
       deleteBtn.addEventListener('click', async () => {
@@ -136,8 +136,53 @@ async function loadEvents() {
         }
       });
 
+      const joinBtn = document.createElement('button');
+      joinBtn.textContent = '🙋‍♂️ Приєднатися';
+      joinBtn.addEventListener('click', async () => {
+        try {
+          const res = await fetch(`http://localhost:3000/events/${event.id}/register`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+          });
+
+          const result = await res.json();
+          alert(result.message || 'Ви приєдналися до події!');
+          loadEvents(); // оновимо список після приєднання
+        } catch (err) {
+          alert('Помилка при реєстрації на подію: ' + err.message);
+        }
+      });
+
+      // 👇 Блок зареєстрованих волонтерів
+      const volunteerList = document.createElement('ul');
+      volunteerList.textContent = '🔽 Зареєстровані волонтери:';
+
+      fetch(`http://localhost:3000/events/${event.id}/volunteers`)
+        .then(res => res.json())
+        .then(volunteers => {
+          if (volunteers.length === 0) {
+            const noOne = document.createElement('li');
+            noOne.textContent = '— Ще ніхто не приєднався';
+            volunteerList.appendChild(noOne);
+          } else {
+            volunteers.forEach(vol => {
+              const nameItem = document.createElement('li');
+              nameItem.textContent = `👤 ${vol.username}`;
+              volunteerList.appendChild(nameItem);
+            });
+          }
+        })
+        .catch(err => {
+          console.error('Помилка при завантаженні волонтерів', err);
+        });
+
+      // Додати все до li
       li.appendChild(editBtn);
       li.appendChild(deleteBtn);
+      li.appendChild(joinBtn);
+      li.appendChild(volunteerList); // 👈 тут вставляється список волонтерів
 
       list.appendChild(li);
     });
@@ -146,6 +191,8 @@ async function loadEvents() {
     console.error('Помилка при завантаженні подій:', err);
   }
 }
+
+
 
 function showMainPage() {
   document.getElementById('register').style.display = 'none';
