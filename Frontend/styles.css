@@ -1,41 +1,52 @@
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f0f4f8;
+  background: linear-gradient(to right, #e0f7fa, #e1f5fe);
   color: #333;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 50px;
+  padding: 50px 20px;
+  min-height: 100vh;
+  animation: fadeInBody 1s ease;
+}
+
+@keyframes fadeInBody {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 h1, h2 {
   text-align: center;
   color: #2c3e50;
+  margin-bottom: 20px;
 }
 
 .tab-btn {
   cursor: pointer;
   margin: 0 10px;
-  padding: 10px 20px;
+  padding: 10px 25px;
   background-color: #e0e0e0;
-  border-radius: 5px;
-  transition: background-color 0.3s ease;
+  border-radius: 30px;
+  transition: all 0.3s ease;
+  font-weight: 500;
 }
 
 .tab-btn:hover {
   background-color: #d0d0d0;
+  transform: scale(1.05);
 }
 
 .tab-btn.active {
   background-color: #3498db;
   color: white;
   font-weight: bold;
+  box-shadow: 0 4px 10px rgba(52, 152, 219, 0.3);
 }
 
 .tab-content {
@@ -43,60 +54,97 @@ h1, h2 {
   width: 100%;
   max-width: 400px;
   background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  margin-top: 20px;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  margin-top: 25px;
+  animation: fadeInContent 0.6s ease;
 }
 
 .tab-content.active {
   display: block;
 }
 
-form input {
+@keyframes fadeInContent {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+form input, textarea {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin-top: 10px;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 8px;
+  transition: border-color 0.3s ease;
+  font-size: 15px;
+}
+
+form input:focus, textarea:focus {
+  border-color: #3498db;
+  outline: none;
 }
 
 button {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   margin-top: 15px;
   background-color: #3498db;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 button:hover {
   background-color: #2980b9;
+  transform: scale(1.02);
 }
 
 #mainContent {
   width: 100%;
-  max-width: 600px;
+  max-width: 1200px;
   background: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 35px;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  animation: fadeInMain 1s ease;
+  margin-top: 40px;
+}
+
+@keyframes fadeInMain {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 #eventsList {
-  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
   padding: 0;
+  list-style: none;
+  margin-top: 20px;
 }
 
 #eventsList li {
   background: #f9f9f9;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  animation: slideIn 0.5s ease;
+  transition: transform 0.3s ease;
+}
+
+#eventsList li:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 #eventsList hr {
@@ -104,7 +152,22 @@ button:hover {
   border: none;
   border-top: 1px solid #ddd;
 }
+
 p {
   margin-top: 10px;
   color: #e74c3c;
+  font-weight: 500;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  #eventsList {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  #eventsList {
+    grid-template-columns: 1fr;
+  }
 }

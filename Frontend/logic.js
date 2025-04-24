@@ -149,13 +149,13 @@ async function loadEvents() {
 
           const result = await res.json();
           alert(result.message || 'Ви приєдналися до події!');
-          loadEvents(); // оновимо список після приєднання
+          loadEvents(); 
         } catch (err) {
           alert('Помилка при реєстрації на подію: ' + err.message);
         }
       });
 
-      // 👇 Блок зареєстрованих волонтерів
+  
       const volunteerList = document.createElement('ul');
       volunteerList.textContent = '🔽 Зареєстровані волонтери:';
 
@@ -178,11 +178,11 @@ async function loadEvents() {
           console.error('Помилка при завантаженні волонтерів', err);
         });
 
-      // Додати все до li
+  
       li.appendChild(editBtn);
       li.appendChild(deleteBtn);
       li.appendChild(joinBtn);
-      li.appendChild(volunteerList); // 👈 тут вставляється список волонтерів
+      li.appendChild(volunteerList); 
 
       list.appendChild(li);
     });
