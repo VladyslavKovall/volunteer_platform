@@ -101,11 +101,13 @@ async function loadEvents() {
 
       li.innerHTML = `
         <strong>${event.title}</strong><br />
-        📅 <em>${formattedDate}</em><br />
-        🧭 <strong>Місце:</strong> ${event.location}<br />
-        📝 <strong>Опис:</strong> ${event.description}
-        <hr />
-      `;
+      📅 <em>${formattedDate}</em><br />
+      🧭 <strong>Місце:</strong> ${event.location}<br />
+      📝 <strong>Опис:</strong> ${event.description}<br />
+      👤 <strong>Організатор:</strong> ${event.organizer}
+  <hr />
+`;
+
 
       const editBtn = document.createElement('button');
       editBtn.textContent = '✏️ Редагувати';
@@ -154,8 +156,6 @@ async function loadEvents() {
           alert('Помилка при реєстрації на подію: ' + err.message);
         }
       });
-
-  
       const volunteerList = document.createElement('ul');
       volunteerList.textContent = '🔽 Зареєстровані волонтери:';
 
@@ -172,8 +172,9 @@ async function loadEvents() {
               nameItem.textContent = `👤 ${vol.username}`;
               volunteerList.appendChild(nameItem);
             });
-          }
+          };
         })
+
         .catch(err => {
           console.error('Помилка при завантаженні волонтерів', err);
         });

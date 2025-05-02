@@ -6,9 +6,15 @@ exports.createEvent = (userId, title, description, date, location, callback) => 
 };
 
 exports.getAllEvents = (callback) => {
-    const sql = 'SELECT * FROM events ORDER BY date ASC';
+    const sql = `
+        SELECT events.*, users.username AS organizer
+        FROM events
+        JOIN users ON events.user_id = users.id
+        ORDER BY date ASC
+    `;
     db.query(sql, callback);
 };
+
 
 exports.updateEvent = (id, userId, title, description, date, location, callback) => {
     const sql = 'UPDATE events SET title = ?, description = ?, date = ?, location = ? WHERE id = ? AND user_id = ?';
