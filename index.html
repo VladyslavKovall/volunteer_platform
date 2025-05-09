@@ -6,14 +6,10 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-
    <div>
     <span class="tab-btn active" data-tab="register">Реєстрація</span>
     <span class="tab-btn" data-tab="login">Вхід</span>
   </div>
-
-
   <div id="register" class="tab-content active">
     <h2>Реєстрація</h2>
     <form id="registerForm">
@@ -24,8 +20,6 @@
     </form>
     <p id="registerMessage"></p>
   </div>
-
-
   <div id="login" class="tab-content">
     <h2>Вхід</h2>
     <form id="loginForm">
@@ -38,21 +32,39 @@
 
 
   <section id="mainContent" style="display: none;">
-    <h1>Список заходів</h1>
-    <ul id="eventsList"></ul>
+  <div class="event-header">
+  <h2>Список подій</h2>
+  <input
+    type="text"
+    id="searchInput"
+    placeholder="Пошук події за назвою..."
+    style="padding: 5px; margin-left: 10px; width: 250px;"
+  />
+</div>
+
+  <ul id="eventsList"></ul>
   <button id="showEventFormBtn">➕ Створити захід</button>
-
-
+  <div id="modalBackdrop"></div>
+  <div id="eventModal">
+    <form id="eventForm">
+      <input type="hidden" name="eventId" />
+      <input name="title" placeholder="Назва події" required />
+      <input name="date" type="datetime-local" required />
+      <input name="location" placeholder="Місце проведення" required />
+      <textarea name="description" placeholder="Опис події" rows="4" required></textarea>
+      <button type="submit">Зберегти</button>
+      <button type="button" id="cancelEditBtn">Скасувати</button>
+    </form>
+  </div>
   <form id="eventForm" style="display: none; margin-top: 1em;">
     <input type="hidden" name="eventId" />
     <input type="text" name="title" placeholder="Назва події" required /><br />
     <input type="datetime-local" name="date" required /><br />
     <input type="text" name="location" placeholder="Місце проведення" required /><br />
     <textarea name="description" placeholder="Опис події" required></textarea><br />
-    <button type="submit">💾 Зберегти</button>
-    <button type="button" id="cancelEditBtn">❌ Скасувати</button>
+    <button type="submit">Зберегти</button>
+    <button type="button" id="cancelEditBtn">Скасувати</button>
   </form>
-
   </section>
 
   <script src="logic.js"></script>
