@@ -147,7 +147,7 @@ function setupEventFormModal() {
 }
 
 // Завантаження подій
-let allEvents = []; // глобальний масив подій
+let allEvents = []; 
 
 async function loadEvents() {
   try {
