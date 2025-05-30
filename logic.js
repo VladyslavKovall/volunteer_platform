@@ -1,4 +1,3 @@
-// Перемикання вкладок
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -9,14 +8,12 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// Декодування токена
 function parseJwt(token) {
   const base64Payload = token.split('.')[1];
   const payload = atob(base64Payload);
   return JSON.parse(payload);
 }
 
-// Реєстрація
 document.getElementById('registerForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
@@ -46,7 +43,6 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
   }
 });
 
-// Вхід
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const formData = new FormData(e.target);
@@ -55,7 +51,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
   await loginUser(email, password);
 });
 
-// Авторизація
 async function loginUser(email, password) {
   try {
     const res = await fetch('http://localhost:3000/login', {
@@ -77,7 +72,6 @@ async function loginUser(email, password) {
   }
 }
 
-// Головна сторінка (після входу)
 function showMainPage() {
   document.getElementById('register').style.display = 'none';
   document.getElementById('login').style.display = 'none';
@@ -89,7 +83,6 @@ function showMainPage() {
   loadEvents();
 }
 
-// Налаштування модального вікна
 function setupEventFormModal() {
   const showEventFormBtn = document.getElementById('showEventFormBtn');
   const eventForm = document.getElementById('eventForm');
@@ -146,8 +139,7 @@ function setupEventFormModal() {
   });
 }
 
-// Завантаження подій
-let allEvents = []; 
+let allEvents = [];
 
 async function loadEvents() {
   try {
@@ -188,6 +180,20 @@ function renderEvents(events) {
     const editBtn = document.createElement('button');
     editBtn.textContent = 'Редагувати';
     editBtn.addEventListener('click', () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Будь ласка, увійдіть в систему');
+        return;
+      }
+
+      const userData = parseJwt(token);
+      console.log(event.organizer);
+      console.log(userData.username);
+      if (userData.id !== event.user_id) {
+        alert('У вас немає доступу до редагування цієї події. Тільки організатор може її редагувати.');
+        return;
+      }
+
       document.getElementById('modalBackdrop').style.display = 'block';
       document.getElementById('eventModal').style.display = 'block';
 
@@ -201,17 +207,39 @@ function renderEvents(events) {
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'Видалити';
     deleteBtn.addEventListener('click', async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Будь ласка, увійдіть в систему');
+        return;
+      }
+
+      const userData = parseJwt(token);
+      console.log(event.user_id);
+      console.log(userData.id);
+
+      if (userData.id !== event.user_id) {
+        alert('У вас немає доступу до видалення цієї події. Тільки організатор може її видалити.');
+        return;
+      }
+
       if (confirm('Ви впевнені, що хочете видалити цю подію?')) {
         try {
-          await fetch(`http://localhost:3000/events/${event.id}`, {
+          const response = await fetch(`http://localhost:3000/events/${event.id}`, {
             method: 'DELETE',
             headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`
+              'Authorization': `Bearer ${token}`
             }
           });
+
+          if (!response.ok) {
+            throw new Error('Помилка при видаленні події');
+          }
+
+          alert('Подія успішно видалена');
           loadEvents();
         } catch (err) {
-          alert('Помилка при видаленні події');
+          console.error(err);
+          alert('Сталася помилка при видаленні події');
         }
       }
     });
@@ -235,6 +263,7 @@ function renderEvents(events) {
     });
 
     const volunteerList = document.createElement('ul');
+    volunteerList.classList.add('volunteer-scroll');
     volunteerList.textContent = 'Зареєстровані волонтери:';
 
     try {
@@ -264,6 +293,7 @@ function renderEvents(events) {
     list.appendChild(li);
   });
 }
+
 document.getElementById('searchInput').addEventListener('input', () => {
   const query = document.getElementById('searchInput').value.toLowerCase();
   const filtered = allEvents.filter(event =>
@@ -271,4 +301,3 @@ document.getElementById('searchInput').addEventListener('input', () => {
   );
   renderEvents(filtered);
 });
-
