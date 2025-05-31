@@ -176,82 +176,69 @@ function renderEvents(events) {
       👤 <strong>Організатор:</strong> ${event.organizer}
       <hr />
     `;
-
-    const editBtn = document.createElement('button');
-    editBtn.textContent = 'Редагувати';
-    editBtn.addEventListener('click', () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Будь ласка, увійдіть в систему');
-        return;
-      }
-
+    const token = localStorage.getItem('token');
+    let isOrganizer = false;
+    
+    if (token) {
       const userData = parseJwt(token);
-      console.log(event.organizer);
-      console.log(userData.username);
-      if (userData.id !== event.user_id) {
-        alert('У вас немає доступу до редагування цієї події. Тільки організатор може її редагувати.');
-        return;
-      }
+      isOrganizer = userData.id === event.user_id;
+    }
+    if (isOrganizer) {
+      const editBtn = document.createElement('button');
+      editBtn.textContent = 'Редагувати';
+      editBtn.addEventListener('click', () => {
+        document.getElementById('modalBackdrop').style.display = 'block';
+        document.getElementById('eventModal').style.display = 'block';
 
-      document.getElementById('modalBackdrop').style.display = 'block';
-      document.getElementById('eventModal').style.display = 'block';
+        eventForm.elements.eventId.value = event.id;
+        eventForm.elements.title.value = event.title;
+        eventForm.elements.date.value = new Date(event.date).toISOString().slice(0, 16);
+        eventForm.elements.location.value = event.location;
+        eventForm.elements.description.value = event.description;
+      });
 
-      eventForm.elements.eventId.value = event.id;
-      eventForm.elements.title.value = event.title;
-      eventForm.elements.date.value = new Date(event.date).toISOString().slice(0, 16);
-      eventForm.elements.location.value = event.location;
-      eventForm.elements.description.value = event.description;
-    });
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Видалити';
+      deleteBtn.addEventListener('click', async () => {
+        if (confirm('Ви впевнені, що хочете видалити цю подію?')) {
+          try {
+            const response = await fetch(`http://localhost:3000/events/${event.id}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
+            });
 
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Видалити';
-    deleteBtn.addEventListener('click', async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        alert('Будь ласка, увійдіть в систему');
-        return;
-      }
-
-      const userData = parseJwt(token);
-      console.log(event.user_id);
-      console.log(userData.id);
-
-      if (userData.id !== event.user_id) {
-        alert('У вас немає доступу до видалення цієї події. Тільки організатор може її видалити.');
-        return;
-      }
-
-      if (confirm('Ви впевнені, що хочете видалити цю подію?')) {
-        try {
-          const response = await fetch(`http://localhost:3000/events/${event.id}`, {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${token}`
+            if (!response.ok) {
+              throw new Error('Помилка при видаленні події');
             }
-          });
 
-          if (!response.ok) {
-            throw new Error('Помилка при видаленні події');
+            alert('Подія успішно видалена');
+            loadEvents();
+          } catch (err) {
+            console.error(err);
+            alert('Сталася помилка при видаленні події');
           }
-
-          alert('Подія успішно видалена');
-          loadEvents();
-        } catch (err) {
-          console.error(err);
-          alert('Сталася помилка при видаленні події');
         }
-      }
-    });
+      });
+
+      li.appendChild(editBtn);
+      li.appendChild(deleteBtn);
+    }
 
     const joinBtn = document.createElement('button');
     joinBtn.textContent = 'Приєднатися';
     joinBtn.addEventListener('click', async () => {
+      if (!token) {
+        alert('Будь ласка, увійдіть в систему');
+        return;
+      }
+      
       try {
         const res = await fetch(`http://localhost:3000/events/${event.id}/register`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${token}`
           }
         });
         const result = await res.json();
@@ -285,8 +272,6 @@ function renderEvents(events) {
       console.error('Помилка при завантаженні волонтерів', err);
     }
 
-    li.appendChild(editBtn);
-    li.appendChild(deleteBtn);
     li.appendChild(joinBtn);
     li.appendChild(volunteerList);
 
